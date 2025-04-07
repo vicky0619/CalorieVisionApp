@@ -1,0 +1,9 @@
+# Xcode
+*.xcuserstate
+build/
+DerivedData/
+
+# API key 保護
+APIKeys.swift
+OpenAIService.swift
+GeminiService.swift
