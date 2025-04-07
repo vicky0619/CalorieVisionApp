@@ -1,6 +1,6 @@
 # CalorieVisionApp
 
-**CalorieVisionApp** is a Swift-based iOS application that uses **Gemini Vision AI** to analyze food photos and estimate nutrition facts — including calories, protein, carbohydrates, and fat. The app allows users to take or upload photos, view AI results in structured JSON, and maintain a history of past analyses. It is designed to demonstrate image + LLM integration in a mobile app, suitable for computer science portfolio and internship applications.
+**CalorieVisionApp** is a Swift-based iOS application that uses **Gemini Vision AI** to analyze food photos and estimate nutrition facts — including calories, protein, carbohydrates, and fat. The app allows users to take or upload photos, view AI results in structured JSON, and maintain a history of past analyses. It is designed to demonstrate image + LLM integration in a mobile app.
 
 ---
 
