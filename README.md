@@ -61,8 +61,13 @@ CalorieVisionApp/
 
 ## 📸 Screenshots
 
-*Coming soon…*  
-You can add UI screenshots or a short video here!
+### 📱 App Preview: CalorieVision
+
+
+| Main Screen | History Page |
+|-------------|--------------|
+| ![Main Screen](https://i.imgur.com/ITieWde.png) | ![History Page](https://i.imgur.com/VVucZVG.png) |
+
 
 ---
 
