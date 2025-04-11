@@ -3,92 +3,70 @@
 //  CalorieVisionApp
 //
 //  Created by Vicky T on 4/8/25.
-//
 
+import Firebase
 import SwiftUI
-import PhotosUI
 
-struct ContentView: View {
-    @State private var selectedItem: PhotosPickerItem? = nil
-    @State private var selectedImage: UIImage? = nil
-    @State private var resultText: String = ""
-    @State private var isCameraPresented = false
-    @State private var history: [FoodAnalysisRecord] = []
-    @State private var isHistoryPresented = false
-
-
+struct MealHistoryView: View {
+    @ObservedObject var viewModel: MealViewModel
+    var userId: String
     var body: some View {
-        VStack(spacing: 20) {
-            if let image = selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 250)
-            }
-
-            PhotosPicker("選擇照片", selection: $selectedItem, matching: .images)
-                .onChange(of: selectedItem) { newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self),
-                           let uiImage = UIImage(data: data) {
-                            selectedImage = uiImage
+        List {
+            ForEach(viewModel.meals) { meal in
+                NavigationLink(destination: MealDetailView(viewModel: viewModel, meal: meal)){
+                    HStack {
+                        if let url = URL(string: meal.imageURL) {
+                            AsyncImage(url: url) { image in
+                                image.resizable()
+                                     .aspectRatio(contentMode: .fit)
+                                     .frame(width: 50, height: 50)
+                                     .cornerRadius(5)
+                            } placeholder: {
+                                ProgressView()
+                            }
                         }
-                    }
-                }
 
-
-            Button("拍照分析") {
-                isCameraPresented = true
-            }
-            .sheet(isPresented: $isCameraPresented) {
-                ImagePicker(sourceType: .camera, selectedImage: $selectedImage)
-            }
-            HStack {
-                PhotosPicker("選照片", selection: $selectedItem, matching: .images)
-                Button("拍照分析") {
-                    isCameraPresented = true
-                }
-            }
-
-
-            Button("分析圖片") {
-                if let image = selectedImage {
-                    analyzeImageWithGemini(image: image) { result in
-                        resultText = result
-
-                        if let imageData = image.jpegData(compressionQuality: 0.8) {
-                            let newRecord = FoodAnalysisRecord(
-                                imageData: imageData,
-                                resultText: result,
-                                timestamp: Date()
-                            )
-                            history.append(newRecord)
+                        VStack(alignment: .leading) {
+                            Text("\(meal.nutrition.calories, specifier: "%.0f") Calories")
+                            Text("Added: \(meal.timestamp?.dateValue() ?? Date(), formatter: dateFormatter)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
                     }
                 }
             }
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-            
-            ScrollView {
-                Text(resultText)
-                    .padding()
-            }
-            Button("🕘 歷史紀錄") {
-                isHistoryPresented = true
-            }
-            .sheet(isPresented: $isHistoryPresented) {
-                HistoryView(records: history)
-            }
-
         }
-        .padding()
+        .task {
+            await viewModel.loadMeals(userId: userId)
+        }
+    }
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
     }
 }
 
+struct ContentView: View {
+    @StateObject private var viewModel = MealViewModel()
+    var userId = "testuser" // replace this with the current user's ID
 
-#Preview {
-    ContentView()
+    var body: some View {
+        NavigationView {
+            VStack {
+                NavigationLink(destination: FoodDiaryView(viewModel: viewModel, userId: userId)) {
+                    Text("Food Diary")
+                }
+                .padding()
+                NavigationLink(destination: ImageUploadView(viewModel: viewModel, userId: userId)){
+                    Text("Add meal")
+                }
+                .padding()
+                MealHistoryView(viewModel: viewModel, userId: userId)
+            }
+        }
+    }
 }
+
